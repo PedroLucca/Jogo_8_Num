@@ -1,0 +1,21 @@
+Algoritmo A*:
+[[1. 2. 3.]
+ [4. 0. 6.]
+ [7. 5. 8.]]
+    |
+    |
+    V
+[[1. 2. 3.]
+ [4. 5. 6.]
+ [7. 0. 8.]]
+    |
+    |
+    V
+[[1. 2. 3.]
+ [4. 5. 6.]
+ [7. 8. 0.]]
+
+Custo de tempo: 2
+Numero de tabuleiros criados: 8
+Profundidade maxima: 2
+Profundidade solucao: 2
