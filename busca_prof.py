@@ -1,17 +1,15 @@
 import sys
-from node import Node
 import numpy as np
+from node import Node
 import time
 
-class busca_a:
+class profundidade:
     def __init__(self, estado_inicial):
-        self.open = []
-        self.closed = []
-        self.objetivo = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 0]])
         self.tabuleiro  = estado_inicial
+        self.objetivo = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 0]])
         self.n = 3
-        #Expressao f = g + h
-
+        self.g = 0
+        #Expressao f = h
 
     def calcular_h(self, node):
         h = 0
@@ -22,50 +20,46 @@ class busca_a:
                         h += 1
         return h
 
-    def funcao(self, node):
-        f = self.calcular_h(node.data) + node.level
-        return f
+    def verificar_visitado(self, node):
+        for v in self.visitados:
+            if np.array_equal(v.data, node):
+                return False
+
+        return True
 
     def calcular_dados(self):
         prof_max = 0
-        for node in self.closed:
+        for node in self.visitados:
             if node.level > prof_max:
                 prof_max = node.level
         return prof_max
 
-
-
     def executar(self):
-        self.g = 0
+        self.pilha = []
+        self.visitados = []
         self.num_nos = 1
-        resultado = open("resultado_a.txt", "w")
-        resultado.write("Algoritmo A*:\n")
+
+        resultado = open("resultado_profundidade.txt", "w")
+        resultado.write("Algoritmo Busca por profundidade:\n")
         inicio = time.time()
-        
-        escrever = open("resultado_a.txt", "r")
-        inicial = Node(self.tabuleiro, 0, 0)
-        inicial.fval = self.funcao(inicial)
-        print("Realizando busca A*...")
-        self.open.append(inicial)
+        escrever = open("resultado_profundidade.txt", "r")
+        print("Realizando busca profundidade...")
+        self.pilha.append(Node(self.tabuleiro, 0, 0))
         while True:
-            cur = self.open[0]
+            cur = self.pilha[0]
+            #print(cur)
             conteudo = escrever.readlines()
-            #conteudo.append("F = " + str(cur.level) + "\n")
+            #conteudo.append("N = " + str(self.g) + "\n")
             conteudo.append(str(cur.data))
-            #print(cur.data)
-            #print(self.tabuleiro)
-            #print("\n")
             if self.calcular_h(cur.data) == 0:
+                self.visitados.append(cur)
                 fim = time.time()
-                self.closed.append(cur)
-                num_nos = self.num_nos
                 prof_max = self.calcular_dados()
                 conteudo.append("\n")
                 conteudo.append("\n")
-                #print(cur.data)
                 conteudo.append("Custo de tempo: " + str(self.g))
                 conteudo.append("\n")
-                conteudo.append("Numero de tabuleiros criados: " + str(num_nos))
+                conteudo.append("Numero de tabuleiros criados: " + str(self.num_nos))
                 conteudo.append("\n")
                 conteudo.append("Profundidade maxima: " + str(prof_max))
                 conteudo.append("\n")
@@ -73,16 +67,19 @@ class busca_a:
                 resultado.writelines(conteudo)
                 resultado.close()
                 escrever.close()
-                print("Resultado A* no arquivo: resultado_a!")
+                print("Resultado profundidade no arquivo: resultado_profundidade!")
                 break
             
-            for node in cur.gerar_nodes():
-                self.num_nos += 1
-                node.fval = self.funcao(node)
-                self.open.append(node)
-            self.closed.append(cur)
-            del self.open[0]
-
+            #print(cur)
+            nodes = cur.gerar_nodes()
+            self.nos = []
+            for node in nodes:
+                if self.verificar_visitado(node.data):
+                    self.num_nos += 1
+                    self.nos.append(node)
+            
+            #print(self.pilha)
+            #print("\n")
             conteudo.append("\n")
             conteudo.append("    |")
             conteudo.append("\n")
@@ -91,10 +88,14 @@ class busca_a:
             conteudo.append("    V")
             conteudo.append("\n")
             resultado.writelines(conteudo)
+            
+            self.visitados.append(self.pilha[0])
+            del self.pilha[0]
 
-            self.open.sort(key = lambda x:x.fval,reverse=False)
-
+            self.pilha = self.pilha + self.nos
+            #print(self.pilha)
             self.g += 1
+            
             #time.sleep(3)
             
 
